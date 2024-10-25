@@ -1,0 +1,8 @@
+services:
+  python-api:
+    build: .
+    image: python-api
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
