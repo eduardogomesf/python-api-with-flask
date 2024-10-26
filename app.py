@@ -5,6 +5,7 @@ from db import items, stores
 
 app = Flask(__name__)
 
+# Stores
 @app.get("/stores")
 def get_stores():
     return { "stores": list(stores.values()) }
@@ -25,6 +26,38 @@ def create_store():
     stores[store_id] = store
     return store, 201
 
+@app.get("/stores/<string:store_id>")
+def get_store(store_id):
+    try:
+      return stores[store_id]
+    except KeyError:
+      abort(404, message="Store not found")
+
+@app.delete("/stores/<string:store_id>")
+def delete_store(store_id):
+  try:
+     del stores[store_id]
+     return "", 204
+  except KeyError:
+      abort(404, message="Store not found")
+
+@app.put("/stores/<string:store_id>")
+def update_store(store_id):
+  store_data = request.get_json()
+
+  if "name" not in store_data:
+      abort(400, message="name is a required param")
+
+  try:
+     store = stores[store_id]
+     store |= store_data
+
+     return store
+  except KeyError:
+     abort(404, message="Store not found")
+    
+
+# Items
 @app.post("/items")
 def create_item():
     item_data = request.get_json()
@@ -52,13 +85,6 @@ def create_item():
 @app.get("/items")
 def get_all_items():
   return { "items": list(items.values()) }
-
-@app.get("/stores/<string:store_id>")
-def get_store(store_id):
-    try:
-      return stores[store_id]
-    except KeyError:
-      abort(404, message="Store not found")
 
 @app.get("/items/<string:item_id>")
 def get_item(item_id):
