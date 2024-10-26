@@ -20,8 +20,20 @@ def create_store():
 @app.post("/items")
 def create_item():
     item_data = request.get_json()
+
+    if(
+       "price" not in item_data
+       or "store_id" not in item_data
+       or "name" not in item_data
+    ):
+        abort(400, message="price, store_id and name are required parameteres.")
+
     if item_data["store_id"] not in stores:
       abort(404, message="Store not found")
+
+    for item in items.values():
+        if item["name"] == item_data["name"] and item["store_id"] == item_data["store_id"]:
+            abort(400, message="Item already exists")
     
     item_id = uuid.uuid4().hex
     item = {**item_data, "id": item_id}
