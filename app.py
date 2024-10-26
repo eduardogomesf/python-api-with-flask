@@ -53,7 +53,7 @@ def create_item():
 def get_all_items():
   return { "items": list(items.values()) }
 
-@app.get("/stores/<string:id>")
+@app.get("/stores/<string:store_id>")
 def get_store(store_id):
     try:
       return stores[store_id]
