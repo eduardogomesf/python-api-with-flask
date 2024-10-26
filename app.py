@@ -60,8 +60,8 @@ def get_store(store_id):
     except KeyError:
       abort(404, message="Store not found")
 
-@app.get("/items/<string:id>")
-def get_item_in_stores(item_id):
+@app.get("/items/<string:item_id>")
+def get_item(item_id):
   try:
     return items[item_id]
   except KeyError:
