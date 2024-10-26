@@ -12,6 +12,14 @@ def get_stores():
 @app.post("/stores")
 def create_store():
     store_data = request.get_json()
+
+    if "name" not in store_data:
+      abort(400, message="name is a required param")
+
+    for store in stores.values():
+       if store["name"] == store_data["name"]:
+            abort(400, message="Store already exists")
+
     store_id = uuid.uuid4().hex
     store = {**store_data, "id": store_id}
     stores[store_id] = store
@@ -26,7 +34,7 @@ def create_item():
        or "store_id" not in item_data
        or "name" not in item_data
     ):
-        abort(400, message="price, store_id and name are required parameteres.")
+        abort(400, message="price, store_id and name are required parameteres")
 
     if item_data["store_id"] not in stores:
       abort(404, message="Store not found")
