@@ -92,6 +92,29 @@ def get_item(item_id):
     return items[item_id]
   except KeyError:
     abort(404, message="Item not found")
+
+@app.delete("/items/<string:item_id>")
+def delete_item(item_id):
+  try:
+     del items[item_id]
+     return "", 204
+  except KeyError:
+      abort(404, message="Item not found")
+
+@app.put("/items/<string:item_id>")
+def update_item(item_id):
+  item_data = request.get_json()
+
+  if "name" not in item_data or "price" not in item_data:
+      abort(400, message="name and store_id are required params")
+
+  try:
+     item = items[item_id]
+     item |= item_data
+
+     return item
+  except KeyError:
+     abort(404, message="Item not found")
     
       
 
