@@ -1,61 +1,23 @@
 import uuid
 from flask import Flask, request
-from flask_smorest import abort
+from flask_smorest import Api, abort
 from db import items, stores
+
+from resources.store import blp as StoreBlueprint
 
 app = Flask(__name__)
 
-# Stores
-@app.get("/stores")
-def get_stores():
-    return { "stores": list(stores.values()) }
+app.config["PROPAGATE_EXCEPTIONS"] = True
+app.config["API_TITLE"] = "Stores APP REST API"
+app.config["API_VERSION"] = "v1"
+app.config["OPENAPI_VERSION"] = "3.0.3"
+app.config["OPENAPI_URL_PREFIX"] = "/"
+app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger"
+app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
 
-@app.post("/stores")
-def create_store():
-    store_data = request.get_json()
+api = Api(app)
 
-    if "name" not in store_data:
-      abort(400, message="name is a required param")
-
-    for store in stores.values():
-       if store["name"] == store_data["name"]:
-            abort(400, message="Store already exists")
-
-    store_id = uuid.uuid4().hex
-    store = {**store_data, "id": store_id}
-    stores[store_id] = store
-    return store, 201
-
-@app.get("/stores/<string:store_id>")
-def get_store(store_id):
-    try:
-      return stores[store_id]
-    except KeyError:
-      abort(404, message="Store not found")
-
-@app.delete("/stores/<string:store_id>")
-def delete_store(store_id):
-  try:
-     del stores[store_id]
-     return "", 204
-  except KeyError:
-      abort(404, message="Store not found")
-
-@app.put("/stores/<string:store_id>")
-def update_store(store_id):
-  store_data = request.get_json()
-
-  if "name" not in store_data:
-      abort(400, message="name is a required param")
-
-  try:
-     store = stores[store_id]
-     store |= store_data
-
-     return store
-  except KeyError:
-     abort(404, message="Store not found")
-    
+api.register_blueprint(StoreBlueprint)
 
 # Items
 @app.post("/items")
