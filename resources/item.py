@@ -9,6 +9,7 @@ blp = Blueprint("items", __name__, description="Operations on items")
 
 @blp.route('/items/<string:store_id>')
 class StoreById(MethodView):
+    @blp.response(200, ItemSchema )
     def get(self, item_id):
       try:
         return items[item_id]
@@ -23,6 +24,7 @@ class StoreById(MethodView):
           abort(404, message="Item not found")
 
     @blp.arguments(ItemUpdateSchema)
+    @blp.response(200, ItemSchema )
     def put(self, item_data, item_id):
       try:
         item = items[item_id]
@@ -35,6 +37,7 @@ class StoreById(MethodView):
 @blp.route('/items')
 class Store(MethodView):
     @blp.arguments(ItemSchema)
+    @blp.response(201, ItemSchema)
     def post(self, item_data):
       if item_data["store_id"] not in stores:
         abort(404, message="Store not found")
@@ -48,8 +51,9 @@ class Store(MethodView):
       items[item_id] = item
 
       return item, 201
-
+    
+    @blp.response(200, ItemSchema(many=True))
     def get(self):
-      return { "items": list(items.values()) }     
+      return items.values()    
     
     
